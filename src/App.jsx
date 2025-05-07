@@ -3,100 +3,178 @@ import { StreamChat } from 'stream-chat';
 import {
   Chat,
   Channel,
-  ChannelHeader,
-  MessageInput,
+  ChannelList,
   Window,
-  LoadingIndicator,
-  useChannelStateContext,
+  MessageList,
+  MessageInput,
+  useChatContext,
+  useMessageContext,
 } from 'stream-chat-react';
 import 'stream-chat-react/dist/css/v2/index.css';
+import { useChannelStateContext } from 'stream-chat-react';
+import AutoLogout from './AutoLogout'; // Adjust path if needed
 
-const apiKey = 'emnbag2b9jt4'; // Your Stream Chat API key
+const CustomChannelHeader = () => {
+  const { channel } = useChannelStateContext();
 
-// Custom theme for black background, red accents, white text
+  return (
+    <div
+      style={{
+        textAlign: 'center',
+        padding: '12px 0',
+        color: '#ff0000',
+        fontWeight: 'bold',
+        fontSize: '1.5rem',
+        borderBottom: '1px solid #ff0000',
+      }}
+    >
+      {channel?.data?.name || 'Channel'}
+    </div>
+  );
+};
+
+// --- THEME: force all backgrounds to black ---
 const customTheme = {
   '--str-chat-background': '#000000',
+  '--str-chat-channel-background': '#000000',
+  '--str-chat__main-panel-background-color': '#000000',
   '--str-chat-primary-color': '#ff0000',
   '--str-chat-text-color': '#ffffff',
   '--str-chat-message-text-color': '#ffffff',
-  '--str-chat-message-background': '#000000',
-  '--str-chat-message-background-hover': '#1a1a1a',
-  '--str-chat-input-background': '#000000',
+  '--str-chat-message-background': '#181818',
+  '--str-chat-message-background-hover': '#222',
+  '--str-chat-input-background': '#181818',
   '--str-chat-input-text-color': '#ffffff',
   '--str-chat-button-primary-background': '#ff0000',
   '--str-chat-button-primary-color': '#ffffff',
   '--str-chat-scrollbar-thumb': '#ff0000',
   '--str-chat-scrollbar-track': '#333333',
-  '--str-chat-user-message-background': '#000000',
-  '--str-chat-other-message-background': '#000000',
-  '--str-chat-header-background': '#000000',
+  '--str-chat-user-message-background': '#181818',
+  '--str-chat-other-message-background': '#181818',
+  '--str-chat-header-background': '#181818',
   '--str-chat-header-title-color': '#ff0000',
 };
 
-// Custom ChannelHeader with red title
-function CustomChannelHeader({ channel }) {
+const apiKey = 'emnbag2b9jt4';
+
+function CustomMessage() {
+  const { message } = useMessageContext();
+  if (!message || typeof message.text !== 'string') return null;
+
+  let dateString = '';
+  if (message.created_at) {
+    const date = new Date(message.created_at);
+    const formatter = new Intl.DateTimeFormat('en-US', {
+      timeZone: 'America/Denver', // Mountain Time zone
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    });
+    dateString = formatter.format(date);
+  }
+
+  return (
+    <div
+      style={{
+        backgroundColor: '#000',
+        color: '#fff',
+        padding: '10px 16px',
+        borderRadius: 8,
+        marginBottom: 8,
+        maxWidth: '80%',
+        wordBreak: 'break-word',
+      }}
+    >
+      <div style={{ fontWeight: 'bold', color: '#ff0000', marginBottom: 4 }}>
+        {message.user?.name || message.user?.id || 'Unknown'}
+        {dateString && (
+          <span style={{ color: '#aaa', fontWeight: 'normal', fontSize: '0.60em', marginLeft: 10 }}>
+            {dateString}
+          </span>
+        )}
+      </div>
+      <div>{message.text}</div>
+    </div>
+  );
+}
+
+// --- SIDEBAR USER LIST ---
+function ActiveChannelUserList() {
+  const { channel } = useChatContext();
+  const members = channel?.state?.members || {};
+  return (
+    <div style={{ padding: '0 16px' }}>
+      <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+        {Object.values(members).map(member => (
+          <li key={member.user?.id} style={{
+            color: '#fff',
+            padding: '4px 0',
+            fontWeight: 'bold'
+          }}>
+            {member.user?.name || member.user?.id || 'Unknown'}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
+function ChannelTitle() {
+  const { channel } = useChatContext();
   return (
     <div style={{
-      background: '#000',
+      color: '#ff0000',
+      fontWeight: 'bold',
+      fontSize: '1.4rem',
       padding: '16px',
-      borderBottom: '1px solid #ff0000',
+      borderBottom: '2px solid #ff0000',
+      background: '#181818',
+      minHeight: 64,
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center', // This centers horizontally!
+      width: '100%',
       textAlign: 'center',
     }}>
-      <span style={{
-        color: '#ff0000',
-        fontWeight: 'bold',
-        fontSize: '1.5rem',
-        letterSpacing: '1px',
-      }}>
-        {channel.data.name || 'Chat'}
+      <span style={{ width: '100%' }}>
+        {channel?.data?.name || channel?.id || 'Select a Channel'}
       </span>
     </div>
   );
 }
 
-// Custom MessageList with black background, red names, white text
-function MessageListCustom() {
-  const { messages } = useChannelStateContext();
+function CustomChannelPreview({ channel, setActiveChannel, activeChannel }) {
   return (
     <div
+      onClick={() => setActiveChannel(channel)}
       style={{
-        padding: 16,
-        overflowY: 'auto',
-        height: 'calc(100% - 40px)',
-        backgroundColor: '#000000', // ensure entire message list background is black
+        padding: '10px 16px',
+        cursor: 'pointer',
+        color: channel?.id === activeChannel?.id ? '#ff0000' : '#fff',
+        background: channel?.id === activeChannel?.id ? '#222' : 'transparent',
+        fontWeight: channel?.id === activeChannel?.id ? 'bold' : 'normal',
+        borderLeft: channel?.id === activeChannel?.id ? '4px solid #ff0000' : '4px solid transparent',
       }}
     >
-      {messages.map(msg => (
-        <div
-          key={msg.id}
-          style={{
-            margin: '12px 0',
-            backgroundColor: '#000000',
-            padding: '10px 16px',
-            borderRadius: '8px',
-            color: '#ffffff',
-            maxWidth: '80%',
-            wordBreak: 'break-word',
-            border: '1px solid #222',
-          }}
-        >
-          <strong style={{ color: '#ff0000', fontWeight: 'bold' }}>
-            {msg.user?.name || msg.user?.id}
-          </strong>
-          : <span>{msg.text}</span>
-        </div>
-      ))}
+      {channel.data.name || channel.id}
     </div>
   );
 }
 
-function App() {
-  const [pin, setPin] = useState('');
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState('');
-  const [chatClient, setChatClient] = useState(null);
-  const [channel, setChannel] = useState(null);
+function CustomChannelList({ children }) {
+  return <div>{children}</div>;
+}
 
+function App() {
+  const [chatClient, setChatClient] = useState(null);
+  const [pin, setPin] = useState('');
+  const [error, setError] = useState('');
+  const [result, setResult] = useState(null);
+
+  // --- PIN VERIFY LOGIC ---
   const verifyPin = async () => {
     setError('');
     setResult(null);
@@ -106,13 +184,17 @@ function App() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pin }),
       });
+
+      if (!res.ok) {
+        throw new Error(`Server error: ${res.status} ${res.statusText}`);
+      }
+
       const data = await res.json();
       setPin('');
       if (data.error) {
         setError(data.error);
       } else {
         setResult(data);
-
         const client = StreamChat.getInstance(apiKey);
         await client.connectUser(
           {
@@ -122,58 +204,193 @@ function App() {
           data.token
         );
 
-        const channel = client.channel('messaging', 'general', {
-          name: 'General',
+        // --- AUTO-CREATE USER CHANNEL ---
+        const channel = client.channel('messaging', data.userId, {
+          name: data.name,
+          members: [data.userId],
         });
-        await channel.watch();
+        await channel.create();
 
         setChatClient(client);
-        setChannel(channel);
       }
     } catch (err) {
       setError('Could not connect to backend.');
     }
   };
 
-  if (result && (!chatClient || !channel)) {
-    return <LoadingIndicator />;
-  }
+  const handleLogout = async () => {
+    if (chatClient) {
+      await chatClient.disconnectUser(); // Disconnects user from Stream
+      setChatClient(null);
+    }
+    setResult(null);      // Clear user info so PIN screen shows
+    setPin(''); // Clear PIN input
+  };
 
-  if (chatClient && channel) {
-    return (
-      <div
-        style={{
-          width: '900px',
-          height: '700px',
-          margin: 'auto',
-          position: 'fixed',
-          top: 0,
-          bottom: 0,
-          left: 0,
-          right: 0,
-          border: '1px solid #ff0000',
-          borderRadius: '8px',
-          display: 'flex',
-          flexDirection: 'column',
-          boxShadow: '0 4px 12px rgba(255, 0, 0, 0.3)',
-          backgroundColor: '#000000',
-        }}
-      >
-        <Chat client={chatClient} theme={customTheme} style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#000' }}>
-          <Channel channel={channel} style={{ flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: '#000000' }}>
-            <Window style={{ flex: 1, display: 'flex', flexDirection: 'column', backgroundColor: '#000000' }}>
-              <CustomChannelHeader channel={channel} />
-              <MessageListCustom />
-              {/* Default MessageInput for send button and Enter-to-send */}
-              <MessageInput />
-            </Window>
-          </Channel>
-        </Chat>
-      </div>
-    );
-  }
+  // --- MAIN CHAT UI ---
+ // --- MAIN CHAT UI ---
+if (chatClient) {
+  return (
+    <AutoLogout chatClient={chatClient} onLogout={handleLogout}>
+      {({ remainingTime }) => (
+        <div style={{
+          minHeight: '100vh',
+          minWidth: '100vw',
+          background: '#000',
+          color: '#fff',
+          position: 'relative',
+        }}>
+          {/* LOGOUT BUTTON + TIMER */}
+          <div style={{
+            position: 'absolute',
+            top: 20,
+            right: 20,
+            display: 'flex',
+            alignItems: 'center',
+            zIndex: 100
+          }}>
+            <button
+              onClick={handleLogout}
+              style={{
+                background: '#ff0000',
+                color: '#fff',
+                border: 'none',
+                borderRadius: 4,
+                padding: '10px 18px',
+                fontWeight: 'bold',
+                fontSize: '1rem',
+                cursor: 'pointer',
+                marginRight: 12,
+              }}
+            >
+              Log Out
+            </button>
+            <span style={{
+              color: '#ff0000',
+              fontWeight: 'bold',
+              fontFamily: 'monospace',
+              fontSize: '1.1rem',
+            }}>
+              {/* Format as MM:SS */}
+              {String(Math.floor(remainingTime / 60)).padStart(2, '0')}:
+              {String(remainingTime % 60).padStart(2, '0')}
+            </span>
+          </div>
+          <Chat client={chatClient} theme={customTheme}>
 
-  // Center the PIN screen both vertically and horizontally
+            {/* Sidebar */}
+            <div
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: 280,
+                height: '100vh',
+                background: '#181818',
+                color: '#fff',
+                borderRight: '2px solid #ff0000',
+                zIndex: 10,
+                overflowY: 'auto',
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
+              {/* Channels Title */}
+              <div
+                style={{
+                  padding: '20px 16px 8px',
+                  fontWeight: 'bold',
+                  fontSize: '1.3rem',
+                  color: '#ff0000',
+                  borderBottom: '1px solid #ff0000',
+                }}
+              >
+                Channels
+              </div>
+
+              {/* Channel List */}
+              <div style={{ minHeight: 0 }}>
+                <ChannelList
+                  filters={{}}
+                  sort={{ last_message_at: -1 }}
+                  options={{ state: true, watch: true, presence: true }}
+                  style={{ width: '100%' }}
+                  List={CustomChannelList}
+                  Preview={CustomChannelPreview}
+                />
+              </div>
+
+              {/* Online Users Title */}
+              <div
+                style={{
+                  marginTop: 250,
+                  padding: '0 16px 8px',
+                  fontWeight: 'bold',
+                  fontSize: '1.1rem',
+                  color: '#ff0000',
+                }}
+              >
+                Online Users
+              </div>
+
+              {/* Online Users List */}
+              <ActiveChannelUserList />
+            </div>
+
+            {/* Main Chat Area */}
+            <div
+              style={{
+                position: 'absolute',
+                left: 280,
+                top: 0,
+                right: 0,
+                bottom: 0,
+                background: '#000',
+                display: 'flex',
+                flexDirection: 'column',
+                minWidth: 0,
+                minHeight: 0,
+              }}
+            >
+              <Channel>
+                <div
+                  style={{
+                    flex: 1,
+                    minWidth: 0,
+                    minHeight: 0,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    background: '#000',
+                    height: '100%',
+                  }}
+                >
+                  <div
+                    style={{
+                      textAlign: 'center',
+                      padding: '12px 0',
+                      color: '#ff0000',
+                      fontWeight: 'bold',
+                      fontSize: '1.5rem',
+                    }}
+                  >
+                    <ChannelTitle />
+                  </div>
+                  <Window>
+                    <MessageList Message={CustomMessage} />
+                    <MessageInput />
+                  </Window>
+                </div>
+              </Channel>
+            </div>
+          </Chat>
+        </div>
+      )}
+    </AutoLogout>
+  );
+}
+
+
+  // --- PIN SCREEN ---
   return (
     <div style={{
       minHeight: '100vh',
@@ -181,7 +398,7 @@ function App() {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      backgroundColor: '#000000',
+      backgroundColor: '#000',
     }}>
       <div style={{
         background: '#000',
@@ -205,8 +422,8 @@ function App() {
             padding: '8px',
             borderRadius: '4px',
             border: '1px solid #ff0000',
-            backgroundColor: '#000000',
-            color: '#ffffff',
+            backgroundColor: '#000',
+            color: '#fff',
             width: '100%',
             fontSize: '1rem',
           }}
@@ -215,7 +432,7 @@ function App() {
           onClick={verifyPin}
           style={{
             backgroundColor: '#ff0000',
-            color: '#ffffff',
+            color: '#fff',
             border: 'none',
             padding: '10px 0',
             borderRadius: '4px',
@@ -228,11 +445,7 @@ function App() {
           Verify
         </button>
         {error && <div style={{ color: '#ff0000', marginTop: 20 }}>{error}</div>}
-        {result && (
-          <div style={{ marginTop: 20, color: '#ffffff' }}>
-            <b>Welcome, {result.name}!</b>
-          </div>
-        )}
+        {result && <div style={{ marginTop: 20, color: '#fff' }}><b>Welcome, {result.name}!</b></div>}
       </div>
     </div>
   );
