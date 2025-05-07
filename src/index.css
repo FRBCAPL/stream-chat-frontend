@@ -111,3 +111,19 @@
   .str-chat__channel-list-sidebar {
   border-right: 2px solid #ff0000 !important;
   }
+  /* Stream Chat layout fixes for better MessageInput visibility */
+.str-chat__main-panel {
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
+.str-chat__message-list {
+  flex: 1 !important;
+  overflow-y: auto !important;
+}
+
+.str-chat__message-input {
+  flex-shrink: 0 !important;
+}
