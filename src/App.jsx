@@ -468,7 +468,7 @@ function App() {
         alignItems: 'center',
         width: 350,
       }}>
-        <h2 style={{ color: '#ff0000', marginBottom: 24 }}>Enter PIN</h2>
+        <h2 style={{ color: '#ff0000', marginBottom: 24 }}><p>Scheduling Chat</p>Please Enter PIN</h2>
         <input
           type="password"
           value={pin}
