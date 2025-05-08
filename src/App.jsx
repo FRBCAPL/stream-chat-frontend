@@ -263,14 +263,18 @@ function App() {
   };
 
   const handleLogout = async () => {
-    if (chatClient) {
-      await chatClient.disconnectUser();
-      setChatClient(null);
-    }
+    const client = chatClient;
+    setChatClient(null); // Unmounts chat UI immediately
     setResult(null);
     setPin('');
+    if (client) {
+      // Wait a tick to ensure UI is unmounted before disconnecting
+      setTimeout(() => {
+        client.disconnectUser();
+      }, 0);
+    }
   };
-
+  
   // --- MAIN CHAT UI ---
   if (chatClient) {
     return (
