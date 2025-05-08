@@ -218,21 +218,20 @@ function App() {
   const [error, setError] = useState('');
   const [result, setResult] = useState(null);
 
-  // --- PIN VERIFY LOGIC ---
   const verifyPin = async () => {
     setError('');
     setResult(null);
     try {
-      const res = await fetch('http://localhost:3001/verify-pin', {
+      const res = await fetch('https://stream-token-server.onrender.com/verify-pin', {  // <-- UPDATED
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pin }),
       });
-
+  
       if (!res.ok) {
         throw new Error(`Server error: ${res.status} ${res.statusText}`);
       }
-
+  
       const data = await res.json();
       setPin('');
       if (data.error) {
@@ -247,20 +246,22 @@ function App() {
           },
           data.token
         );
-
+  
         // --- AUTO-CREATE USER CHANNEL ---
         const channel = client.channel('messaging', data.userId, {
           name: data.name,
           members: [data.userId],
         });
         await channel.create();
-
+  
         setChatClient(client);
       }
     } catch (err) {
       setError('Could not connect to backend.');
     }
   };
+  
+
 
   const handleLogout = async () => {
     const client = chatClient;
