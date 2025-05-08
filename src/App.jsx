@@ -171,10 +171,10 @@ function CustomChannelPreview({ channel, setActiveChannel, activeChannel }) {
       style={{
         padding: '10px 16px',
         cursor: 'pointer',
-        color: channel?.id === activeChannel?.id ? '#ff0000' : '#fff',
-        background: channel?.id === activeChannel?.id ? '#222' : 'transparent',
-        fontWeight: channel?.id === activeChannel?.id ? 'bold' : 'normal',
-        borderLeft: channel?.id === activeChannel?.id ? '4px solid #ff0000' : '4px solid transparent',
+        color: '#fff', // <-- always white
+        background: 'transparent', // <-- no highlight
+        fontWeight: 'normal',      // <-- always normal
+        borderLeft: '4px solid transparent', // <-- no red border
       }}
     >
       {channel.data.name || channel.id}
@@ -182,9 +182,35 @@ function CustomChannelPreview({ channel, setActiveChannel, activeChannel }) {
   );
 }
 
-function CustomChannelList({ children }) {
-  return <div>{children}</div>;
+
+function CustomChannelList({ children, channels, setActiveChannel, activeChannel, Preview }) {
+  // If channels are provided, sort them so "General" is first
+  let sortedChildren = children;
+
+  if (channels && Preview) {
+    // Sort channels so "General" is on top
+    const sortedChannels = [...channels].sort((a, b) => {
+      const isGeneralA = (a.data?.name || '').toLowerCase() === 'general';
+      const isGeneralB = (b.data?.name || '').toLowerCase() === 'general';
+      if (isGeneralA && !isGeneralB) return -1;
+      if (!isGeneralA && isGeneralB) return 1;
+      return 0;
+    });
+
+    // Render sorted previews
+    sortedChildren = sortedChannels.map(channel => (
+      <Preview
+        key={channel.cid}
+        channel={channel}
+        setActiveChannel={setActiveChannel}
+        activeChannel={activeChannel}
+      />
+    ));
+  }
+
+  return <div>{sortedChildren}</div>;
 }
+
 
 function App() {
   const [chatClient, setChatClient] = useState(null);
@@ -326,12 +352,18 @@ function App() {
   </div>
   <div style={{ flex: 'none' }}>
     <ChannelList
-      filters={{ members: { $in: [chatClient.userID] } }}
-      sort={{ last_message_at: -1 }}
-      options={{ state: true, watch: true, presence: true }}
-      List={CustomChannelList}
+  filters={{}}
+  sort={{ last_message_at: -1 }}
+  options={{ state: true, watch: true, presence: true }}
+  List={(listProps) => (
+    <CustomChannelList
+      {...listProps}
       Preview={CustomChannelPreview}
     />
+  )}
+  Preview={CustomChannelPreview}
+/>
+
   </div>
   {/* Spacer for consistent gap */}
   <div style={{ flex: 'none', height: '20vh' }} />
