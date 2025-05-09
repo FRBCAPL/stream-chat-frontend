@@ -87,14 +87,14 @@
 .str-chat__message-list {
   background: #000 !important;
 }
- {
-  background-color: #000 !important;
-}
+ 
+  
+
    .str-chat__main-panel {
   background-color: #000 !important;
 }
 
-  }
+  
   
   .str-chat__input-flat,
   .str-chat__input-flat--textarea-wrapper {
@@ -140,4 +140,288 @@
 
 .str-chat__message-input {
   flex-shrink: 0 !important;
+}
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, sans-serif;
+  background: #111;
+}
+
+.chat-sidebar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 280px;
+  height: 100vh;
+  background: #181818;
+  color: #fff;
+  border-right: 2px solid #ff0000;
+  z-index: 10;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  transition: width 0.2s;
+}
+
+.chat-main {
+  position: absolute;
+  left: 280px;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  background: #000;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  height: 100vh;
+  transition: left 0.2s, width 0.2s;
+}
+
+/* Responsive for small screens */
+@media (max-width: 700px) {
+  .chat-sidebar {
+    position: fixed;
+    width: 60px;
+    min-width: 0;
+    font-size: 0.8em;
+    overflow-x: hidden;
+    padding: 0;
+  }
+  .chat-main {
+    left: 60px;
+    width: calc(100vw - 60px);
+    min-width: 0;
+  }
+}
+
+/* Hide sidebar on very small screens */
+@media (max-width: 450px) {
+  .chat-sidebar {
+    display: none;
+  }
+  .chat-main {
+    left: 0;
+    width: 100vw;
+  }
+}
+
+/* Adjust header elements on small screens */
+.logout-btn, .channel-title, .timer {
+  width: 100%;
+  font-size: 1em;
+  text-align: center;
+  margin: 2px 0;
+}
+* {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+}
+/* Hamburger button - hidden on desktop */
+.sidebar-toggle {
+  display: none;
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  z-index: 110;
+  background: #ff0000;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  width: 40px;
+  height: 40px;
+  font-size: 24px;
+  cursor: pointer;
+}
+
+/* Overlay for sidebar */
+.overlay {
+  display: block;
+  position: fixed;
+  z-index: 105;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+}
+
+/* Show hamburger on small screens */
+@media (max-width: 700px) {
+  .sidebar-toggle {
+    display: block;
+  }
+  .chat-sidebar {
+    transform: translateX(-100%);
+    position: fixed;
+    width: 280px;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    z-index: 120;
+    transition: transform 0.3s ease;
+  }
+  .chat-sidebar.open {
+    transform: translateX(0);
+  }
+  .chat-main {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #000;
+    transition: filter 0.3s ease;
+    z-index: 100;
+  }
+  .chat-main.dimmed {
+    filter: brightness(0.5);
+  }
+}
+
+/* Hide sidebar on very small screens if needed */
+@media (max-width: 450px) {
+  .chat-sidebar {
+    display: none;
+  }
+  .chat-main {
+    left: 0;
+    width: 100vw;
+  }
+}
+.sidebar-toggle {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  .sidebar-toggle {
+    display: block !important;
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 110;
+    background: #ff0000;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+    cursor: pointer;
+  }
+  .chat-sidebar {
+    transform: translateX(-100%);
+    position: fixed;
+    width: 280px;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    z-index: 120;
+    transition: transform 0.3s ease;
+  }
+  .chat-sidebar.open {
+    transform: translateX(0);
+  }
+  .chat-main {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #000;
+    transition: filter 0.3s ease;
+    z-index: 100;
+  }
+  .chat-main.dimmed {
+    filter: brightness(0.5);
+  }
+}
+
+.overlay {
+  display: block;
+  position: fixed;
+  z-index: 105;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
+}
+.sidebar-toggle {
+  display: block !important;
+  background: #ff0000 !important;
+  color: #fff !important;
+  position: fixed !important;
+  top: 10px !important;
+  left: 10px !important;
+  z-index: 9999 !important;
+}
+/* Hamburger button - hidden on desktop */
+.sidebar-toggle {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  .sidebar-toggle {
+    display: block !important;
+    position: fixed;
+    top: 10px;
+    left: 10px;
+    z-index: 110;
+    background: #ff0000;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    width: 40px;
+    height: 40px;
+    font-size: 24px;
+    cursor: pointer;
+  }
+  .chat-sidebar {
+    transform: translateX(-100%);
+    position: fixed;
+    width: 280px;
+    height: 100vh;
+    top: 0;
+    left: 0;
+    z-index: 120;
+    transition: transform 0.3s ease;
+  }
+  .chat-sidebar.open {
+    transform: translateX(0);
+  }
+  .chat-main {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: #000;
+    transition: filter 0.3s ease;
+    z-index: 100;
+  }
+  .chat-main.dimmed {
+    filter: brightness(0.5);
+  }
+}
+
+/* Overlay for sidebar */
+.overlay {
+  display: block;
+  position: fixed;
+  z-index: 105;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.5);
 }
