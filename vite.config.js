@@ -1,8 +1,7 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
 
-export default defineConfig(({ command }) => ({
-  base: command === 'serve' ? '/' : '/stream-chat-frontend/',
+export default defineConfig({
+  base: '/stream-chat-frontend/',
   plugins: [react()],
-}));
-
+});
