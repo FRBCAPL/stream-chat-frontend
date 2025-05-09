@@ -14,10 +14,10 @@ import 'stream-chat-react/dist/css/v2/index.css';
 import { useChannelStateContext } from 'stream-chat-react';
 import ChatScrollWrapper from './ChatScrollWrapper';
 import AutoLogout from './AutoLogout';
+import { slide as Menu } from 'react-burger-menu';
 import './index.css';
 
 const apiKey = 'emnbag2b9jt4';
-
 // --- THEME: force all backgrounds to black ---
 const customTheme = {
   '--str-chat-background': '#000000',
@@ -57,6 +57,16 @@ const CustomChannelHeader = () => {
     </div>
   );
 };
+
+function Sidebar() {
+  return (
+    <Menu>
+      <a className="menu-item" href="/">Home</a>
+      <a className="menu-item" href="/about">About</a>
+      <a className="menu-item" href="/contact">Contact</a>
+    </Menu>
+  );
+}
 
 function CustomMessage() {
   const { message } = useMessageContext();
@@ -188,7 +198,6 @@ function App() {
   const [pin, setPin] = useState('');
   const [error, setError] = useState('');
   const [result, setResult] = useState(null);
-
   // Hamburger menu state
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
@@ -245,168 +254,168 @@ function App() {
   // --- MAIN CHAT UI ---
   if (chatClient) {
     return (
-      <AutoLogout chatClient={chatClient} onLogout={handleLogout}>
-        {({ remainingTime }) => (
-          <div
-            style={{
-              minHeight: '100vh',
-              minWidth: '100vw',
-              background: '#000',
-              color: '#fff',
-              position: 'relative',
-            }}
-          >
-            {/* Hamburger button (shows on mobile) */}
-            <button
-              className="sidebar-toggle"
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              aria-label="Toggle sidebar"
-            >
-              ☰
-            </button>
-
-            {/* Overlay for closing sidebar on mobile */}
-            {sidebarOpen && (
-              <div
-                className="overlay"
-                onClick={() => setSidebarOpen(false)}
-                aria-label="Close sidebar"
-              />
-            )}
-
-            {/* LOGOUT BUTTON + TIMER */}
+      <div id="outer-container">
+        <AutoLogout chatClient={chatClient} onLogout={handleLogout}>
+          {({ remainingTime }) => (
             <div
-              className="chat-header-bar"
               style={{
-                position: 'absolute',
-                top: 20,
-                right: 20,
-                display: 'flex',
-                alignItems: 'center',
-                zIndex: 100,
+                minHeight: '100vh',
+                minWidth: '100vw',
+                background: '#000',
+                color: '#fff',
+                position: 'relative',
               }}
             >
+              {/* Hamburger button (shows on mobile) */}
               <button
-                className="logout-btn"
-                onClick={handleLogout}
-                style={{
-                  background: '#ff0000',
-                  color: '#fff',
-                  border: 'none',
-                  borderRadius: 4,
-                  padding: '10px 18px',
-                  fontWeight: 'bold',
-                  fontSize: '1rem',
-                  cursor: 'pointer',
-                  marginRight: 12,
-                }}
+                className="sidebar-toggle"
+                onClick={() => setSidebarOpen(!sidebarOpen)}
+                aria-label="Toggle sidebar"
               >
-                Log Out
+                ☰
               </button>
-              <span
-                className="timer"
+              {/* Overlay for closing sidebar on mobile */}
+              {sidebarOpen && (
+                <div
+                  className="overlay"
+                  onClick={() => setSidebarOpen(false)}
+                  aria-label="Close sidebar"
+                />
+              )}
+              {/* LOGOUT BUTTON + TIMER */}
+              <div
+                className="chat-header-bar"
                 style={{
-                  color: '#ff0000',
-                  fontWeight: 'bold',
-                  fontFamily: 'monospace',
-                  fontSize: '1.1rem',
+                  position: 'absolute',
+                  top: 20,
+                  right: 20,
+                  display: 'flex',
+                  alignItems: 'center',
+                  zIndex: 100,
                 }}
               >
-                {String(Math.floor(remainingTime / 60)).padStart(2, '0')}:
-                {String(remainingTime % 60).padStart(2, '0')}
-              </span>
-            </div>
-            {/* --- APPLY CUSTOM THEME TO CHAT --- */}
-            <div style={customTheme}>
-              <Chat client={chatClient}>
-                {/* Sidebar: now uses only the class, no inline layout styles */}
-                <div className={`chat-sidebar${sidebarOpen ? ' open' : ''}`}>
-                  {/* Channels Title */}
-                  <div
-                    style={{
-                      flex: 'none',
-                      padding: '20px 16px 8px',
-                      fontWeight: 'bold',
-                      fontSize: '1.3rem',
-                      color: '#ff0000',
-                      borderBottom: '1px solid #ff0000',
-                    }}
-                  >
-                    Channels
-                  </div>
-                  <div style={{ flex: 'none' }}>
-                    <ChannelList
-                      filters={{ members: { $in: [chatClient.userID] } }}
-                      sort={{ last_message_at: -1 }}
-                      options={{ state: true, watch: true, presence: true }}
-                      List={CustomChannelList}
-                      Preview={CustomChannelPreview}
-                    />
-                  </div>
-                  {/* Spacer for consistent gap */}
-                  <div style={{ flex: 'none', height: '20vh' }} />
-                  {/* Online Users Title */}
-                  <div
-                    style={{
-                      flex: 'none',
-                      padding: '0 16px 8px',
-                      fontWeight: 'bold',
-                      fontSize: '1.1rem',
-                      color: '#ff0000',
-                    }}
-                  >
-                    Online Users
-                  </div>
-                  {/* Online Users List */}
-                  <div style={{ flex: 'none' }}>
-                    <ActiveChannelUserList />
-                  </div>
-                </div>
-                {/* Main Chat Area: now uses only the class, no inline layout styles */}
-                <div className={`chat-main${sidebarOpen ? ' dimmed' : ''}`}>
-                  <Channel>
+                <button
+                  className="logout-btn"
+                  onClick={handleLogout}
+                  style={{
+                    background: '#ff0000',
+                    color: '#fff',
+                    border: 'none',
+                    borderRadius: 4,
+                    padding: '10px 18px',
+                    fontWeight: 'bold',
+                    fontSize: '1rem',
+                    cursor: 'pointer',
+                    marginRight: 12,
+                  }}
+                >
+                  Log Out
+                </button>
+                <span
+                  className="timer"
+                  style={{
+                    color: '#ff0000',
+                    fontWeight: 'bold',
+                    fontFamily: 'monospace',
+                    fontSize: '1.1rem',
+                  }}
+                >
+                  {String(Math.floor(remainingTime / 60)).padStart(2, '0')}:
+                  {String(remainingTime % 60).padStart(2, '0')}
+                </span>
+              </div>
+              {/* --- APPLY CUSTOM THEME TO CHAT --- */}
+              <div style={customTheme}>
+                <Chat client={chatClient}>
+                  {/* Sidebar: now uses only the class, no inline layout styles */}
+                  <div className={`chat-sidebar${sidebarOpen ? ' open' : ''}`}>
+                    {/* Channels Title */}
                     <div
                       style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        flex: 1,
-                        minHeight: 0,
-                        minWidth: 0,
-                        height: '100%',
+                        flex: 'none',
+                        padding: '20px 16px 8px',
+                        fontWeight: 'bold',
+                        fontSize: '1.3rem',
+                        color: '#ff0000',
+                        borderBottom: '1px solid #ff0000',
                       }}
                     >
+                      Channels
+                    </div>
+                    <div style={{ flex: 'none' }}>
+                      <ChannelList
+                        filters={{ members: { $in: [chatClient.userID] } }}
+                        sort={{ last_message_at: -1 }}
+                        options={{ state: true, watch: true, presence: true }}
+                        List={CustomChannelList}
+                        Preview={CustomChannelPreview}
+                      />
+                    </div>
+                    {/* Spacer for consistent gap */}
+                    <div style={{ flex: 'none', height: '20vh' }} />
+                    {/* Online Users Title */}
+                    <div
+                      style={{
+                        flex: 'none',
+                        padding: '0 16px 8px',
+                        fontWeight: 'bold',
+                        fontSize: '1.1rem',
+                        color: '#ff0000',
+                      }}
+                    >
+                      Online Users
+                    </div>
+                    {/* Online Users List */}
+                    <div style={{ flex: 'none' }}>
+                      <ActiveChannelUserList />
+                    </div>
+                  </div>
+                  {/* Main Chat Area: now uses only the class, no inline layout styles */}
+                  <div className={`chat-main${sidebarOpen ? ' dimmed' : ''}`}>
+                    <Channel>
                       <div
-                        style={{
-                          textAlign: 'center',
-                          padding: '12px 0',
-                          color: '#ff0000',
-                          fontWeight: 'bold',
-                          fontSize: '1.5rem',
-                        }}
-                      >
-                        <ChannelTitle />
-                      </div>
-                      <Window
                         style={{
                           display: 'flex',
                           flexDirection: 'column',
                           flex: 1,
                           minHeight: 0,
                           minWidth: 0,
-                          background: '#000', // <--- THIS MAKES THE MESSAGE AREA BLACK
+                          height: '100%',
                         }}
                       >
-                        <MessageList Message={CustomMessage} />
-                        <MessageInput />
-                      </Window>
-                    </div>
-                  </Channel>
-                </div>
-              </Chat>
+                        <div
+                          style={{
+                            textAlign: 'center',
+                            padding: '12px 0',
+                            color: '#ff0000',
+                            fontWeight: 'bold',
+                            fontSize: '1.5rem',
+                          }}
+                        >
+                          <ChannelTitle />
+                        </div>
+                        <Window
+                          style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            flex: 1,
+                            minHeight: 0,
+                            minWidth: 0,
+                            background: '#000', // <--- THIS MAKES THE MESSAGE AREA BLACK
+                          }}
+                        >
+                          <MessageList Message={CustomMessage} />
+                          <MessageInput />
+                        </Window>
+                      </div>
+                    </Channel>
+                  </div>
+                </Chat>
+              </div>
             </div>
-          </div>
-        )}
-      </AutoLogout>
+          )}
+        </AutoLogout>
+      </div>
     );
   }
 
