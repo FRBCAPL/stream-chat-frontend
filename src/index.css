@@ -54,7 +54,7 @@
   outline: 4px auto -webkit-focus-ring-color;
   }
   
-  @media (prefers-color-scheme: light) {
+  @media (prefers-color-scheme: dark) {
   :root {
   color: #213547;
   background-color: #070707;
@@ -74,12 +74,26 @@
   }
   }
   .str-chat__main-panel,
-  .str-chat__list,
+  .str-chat__list {
+  background: #000 !important;
+}
+
   .str-chat__message-list,
   .str-chat__channel,
   .str-chat__container,
-  .str-chat__thread {
+  .str-chat__thread, 
+.str-chat__message-list,
+.str-chat__main-panel,
+.str-chat__message-list {
   background: #000 !important;
+}
+ {
+  background-color: #000 !important;
+}
+   .str-chat__main-panel {
+  background-color: #000 !important;
+}
+
   }
   
   .str-chat__input-flat,
